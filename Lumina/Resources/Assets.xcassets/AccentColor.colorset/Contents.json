@@ -2,7 +2,15 @@
   "colors": [
     {
       "idiom": "universal",
-      "color": "#8A6BFF"
+      "color": {
+        "color-space": "srgb",
+        "components": {
+          "red": "0.541",
+          "green": "0.420",
+          "blue": "1.000",
+          "alpha": "1.000"
+        }
+      }
     }
   ],
   "info": {

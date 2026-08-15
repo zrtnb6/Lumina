@@ -39,7 +39,7 @@ jobs:
 
       - name: Build & Archive (unsigned)
         run: |
-          set -e
+          set -eo pipefail
           xcodebuild archive \
             -scheme Lumina \
             -configuration Release \
