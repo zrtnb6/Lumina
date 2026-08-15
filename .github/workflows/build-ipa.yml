@@ -62,9 +62,10 @@ jobs:
           fi
           mkdir -p "$PWD/build/Payload"
           cp -R "$APP" "$PWD/build/Payload/"
-          cd "$PWD/build" && zip -r Lumina.ipa Payload
+          ( cd "$PWD/build" && zip -r Lumina.ipa Payload )
+          IPA="$PWD/build/Lumina.ipa"
           echo "== IPA 大小 =="
-          ls -lh "$PWD/build/Lumina.ipa"
+          ls -lh "$IPA"
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
