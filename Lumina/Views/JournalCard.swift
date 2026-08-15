@@ -7,13 +7,13 @@ struct JournalCard: View {
     @Binding var focus: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             Text("此刻心情")
-                .font(.headline)
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.white)
 
             TextEditor(text: $note)
-                .frame(minHeight: 68, maxHeight: 140)
+                .frame(minHeight: 56, maxHeight: 96) // 比之前 68→140 更紧凑
                 .scrollContentBackground(.hidden)
                 .foregroundStyle(.white)
 
@@ -21,14 +21,15 @@ struct JournalCard: View {
                 .frame(height: 1)
 
             Text("今日焦点")
-                .font(.subheadline)
+                .font(.caption.weight(.medium))
                 .foregroundStyle(.white.opacity(0.85))
 
             TextField("一句话目标…", text: $focus)
                 .textFieldStyle(.plain)
                 .foregroundStyle(.white)
+                .font(.subheadline)
         }
-        .padding(16)
+        .padding(14) // 从 16 → 14
         .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 22))
     }
 }

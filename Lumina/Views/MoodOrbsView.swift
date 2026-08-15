@@ -13,8 +13,8 @@ struct MoodOrbsView: View {
         GeometryReader { geo in
             let count = CGFloat(Mood.allCases.count)
             let spacing: CGFloat = 10
-            // 更激进的尺寸：小屏也至少 52，大屏可到 76
-            let diameter = min(76, max(52, (geo.size.width - spacing * (count - 1)) / count))
+            // 更紧凑：小屏至少 48，大屏不超过 66，给标题/按钮让出垂直空间
+            let diameter = min(66, max(48, (geo.size.width - spacing * (count - 1)) / count))
 
             HStack(spacing: spacing) {
                 ForEach(Mood.allCases) { mood in
@@ -35,6 +35,6 @@ struct MoodOrbsView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(height: 84) // 容纳最大球径(76)+间距余量
+        .frame(height: 74) // 容纳最大球径(66)+间距余量
     }
 }
