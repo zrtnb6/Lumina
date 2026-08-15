@@ -1,18 +1,19 @@
 import SwiftUI
 
 /// 日记 / 焦点输入卡片：一张浮在渐变背景上的玻璃面板
+/// 紧凑布局，适配手机纵向空间有限的现实。
 struct JournalCard: View {
     @Binding var note: String
     @Binding var focus: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 10) {
             Text("此刻心情")
                 .font(.headline)
                 .foregroundStyle(.white)
 
             TextEditor(text: $note)
-                .frame(minHeight: 96)
+                .frame(minHeight: 68, maxHeight: 140)
                 .scrollContentBackground(.hidden)
                 .foregroundStyle(.white)
 
@@ -27,7 +28,7 @@ struct JournalCard: View {
                 .textFieldStyle(.plain)
                 .foregroundStyle(.white)
         }
-        .padding(22)
-        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 26))
+        .padding(16)
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 22))
     }
 }

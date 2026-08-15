@@ -3,8 +3,8 @@ import SwiftUI
 /// 情绪选择：悬浮的玻璃球。整组包在 GlassEffectContainer 中，
 /// 相邻玻璃会自动相互折射、融合。
 ///
-/// 关键点：球直径不再写死，而是按当前可用宽度自适应
-/// （封顶 66、兜底 46），这样从最小屏到 Pro Max 都不会溢出或被裁切。
+/// 球直径按可用宽度自适应（封顶 76、兜底 52），
+/// 在从 SE 到 Pro Max 的所有屏幕上都饱满不溢出。
 struct MoodOrbsView: View {
     @Binding var selected: Mood
     let onPick: (Mood) -> Void
@@ -13,8 +13,8 @@ struct MoodOrbsView: View {
         GeometryReader { geo in
             let count = CGFloat(Mood.allCases.count)
             let spacing: CGFloat = 10
-            // 实际可用宽度里，均分给每个球；大屏封顶、小屏兜底
-            let diameter = min(66, max(46, (geo.size.width - spacing * (count - 1)) / count))
+            // 更激进的尺寸：小屏也至少 52，大屏可到 76
+            let diameter = min(76, max(52, (geo.size.width - spacing * (count - 1)) / count))
 
             HStack(spacing: spacing) {
                 ForEach(Mood.allCases) { mood in
@@ -25,16 +25,16 @@ struct MoodOrbsView: View {
                         onPick(mood)
                     } label: {
                         Image(systemName: mood.systemImage)
-                            .font(.system(size: diameter * 0.42, weight: .semibold))
+                            .font(.system(size: diameter * 0.40, weight: .semibold))
                             .foregroundStyle(.white)
                             .frame(width: diameter, height: diameter)
                     }
                     .glassEffect(.regular.interactive(), in: Circle())
-                    .scaleEffect(selected == mood ? 1.16 : 1.0)
+                    .scaleEffect(selected == mood ? 1.14 : 1.0)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(height: 72)
+        .frame(height: 84) // 容纳最大球径(76)+间距余量
     }
 }

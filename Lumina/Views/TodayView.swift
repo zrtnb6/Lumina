@@ -23,12 +23,12 @@ struct TodayView: View {
                     .animation(.easeInOut(duration: 0.8), value: selectedMood)
 
                 ScrollView {
-                    VStack(spacing: 26) {
-                        // 内容最大宽度约束：大屏不摊开、小屏占满，整体比例更稳
+                    VStack(spacing: 18) {
+                        // 主标题——去掉 Lumina 双重标题，只保留一行
                         Text("今日流光")
-                            .font(.largeTitle.bold())
+                            .font(.title.bold())
                             .foregroundStyle(.white)
-                            .padding(.top, 12)
+                            .padding(.top, 8)
 
                         MoodOrbsView(selected: $selectedMood) { _ in
                             haptic()
@@ -37,18 +37,16 @@ struct TodayView: View {
                         JournalCard(note: $noteText, focus: $focusText)
 
                         // 可形变的玻璃操作区：保存 / 分享 / 展开
-                        // 胶囊按钮用 maxWidth 自动均分剩余空间，圆形按钮固定，
-                        // 这样在任意屏宽下都不会溢出或被裁切。
-                        GlassEffectContainer(spacing: 14) {
-                            HStack(spacing: 14) {
+                        GlassEffectContainer(spacing: 12) {
+                            HStack(spacing: 12) {
                                 Button {
                                     saveEntry()
                                 } label: {
                                     Label("保存此刻", systemImage: "checkmark.seal.fill")
-                                        .font(.headline)
+                                        .font(.subheadline.weight(.semibold))
                                         .foregroundStyle(.white)
                                         .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 12)
+                                        .padding(.vertical, 10)
                                 }
                                 .glassEffect(.regular, in: Capsule())
                                 .glassEffectID("save", in: ns)
@@ -58,10 +56,10 @@ struct TodayView: View {
                                         shareEntry()
                                     } label: {
                                         Label("分享", systemImage: "square.and.arrow.up")
-                                            .font(.headline)
+                                            .font(.subheadline.weight(.semibold))
                                             .foregroundStyle(.white)
                                             .frame(maxWidth: .infinity)
-                                            .padding(.vertical, 12)
+                                            .padding(.vertical, 10)
                                     }
                                     .glassEffect(.regular, in: Capsule())
                                     .glassEffectID("share", in: ns)
@@ -75,9 +73,9 @@ struct TodayView: View {
                                     haptic()
                                 } label: {
                                     Image(systemName: showShare ? "xmark" : "ellipsis")
-                                        .font(.title3)
+                                        .font(.body.weight(.semibold))
                                         .foregroundStyle(.white)
-                                        .frame(width: 48, height: 48)
+                                        .frame(width: 44, height: 44)
                                 }
                                 .glassEffect(.regular.interactive(), in: Circle())
                                 .glassEffectID("toggle", in: ns)
@@ -87,7 +85,7 @@ struct TodayView: View {
                     }
                     .frame(maxWidth: 540)
                     .padding(.horizontal)
-                    .padding(.bottom, 56)
+                    .padding(.bottom, 80) // tab bar(~49) + 安全区余量
                 }
             }
             .navigationTitle("Lumina")
