@@ -24,6 +24,7 @@ struct TodayView: View {
 
                 ScrollView {
                     VStack(spacing: 26) {
+                        // 内容最大宽度约束：大屏不摊开、小屏占满，整体比例更稳
                         Text("今日流光")
                             .font(.largeTitle.bold())
                             .foregroundStyle(.white)
@@ -36,6 +37,8 @@ struct TodayView: View {
                         JournalCard(note: $noteText, focus: $focusText)
 
                         // 可形变的玻璃操作区：保存 / 分享 / 展开
+                        // 胶囊按钮用 maxWidth 自动均分剩余空间，圆形按钮固定，
+                        // 这样在任意屏宽下都不会溢出或被裁切。
                         GlassEffectContainer(spacing: 14) {
                             HStack(spacing: 14) {
                                 Button {
@@ -44,7 +47,7 @@ struct TodayView: View {
                                     Label("保存此刻", systemImage: "checkmark.seal.fill")
                                         .font(.headline)
                                         .foregroundStyle(.white)
-                                        .padding(.horizontal, 22)
+                                        .frame(maxWidth: .infinity)
                                         .padding(.vertical, 12)
                                 }
                                 .glassEffect(.regular, in: Capsule())
@@ -57,7 +60,7 @@ struct TodayView: View {
                                         Label("分享", systemImage: "square.and.arrow.up")
                                             .font(.headline)
                                             .foregroundStyle(.white)
-                                            .padding(.horizontal, 22)
+                                            .frame(maxWidth: .infinity)
                                             .padding(.vertical, 12)
                                     }
                                     .glassEffect(.regular, in: Capsule())
@@ -82,8 +85,9 @@ struct TodayView: View {
                             .padding(.horizontal)
                         }
                     }
+                    .frame(maxWidth: 540)
                     .padding(.horizontal)
-                    .padding(.bottom, 40)
+                    .padding(.bottom, 56)
                 }
             }
             .navigationTitle("Lumina")

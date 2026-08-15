@@ -57,6 +57,7 @@ struct SettingsView: View {
             }
         }
         .padding(22)
+        .frame(maxWidth: 540)
         .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 26))
     }
 
