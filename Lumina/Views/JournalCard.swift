@@ -1,19 +1,20 @@
 import SwiftUI
 
-/// 日记 / 焦点输入卡片：一张浮在渐变背景上的玻璃面板
-/// 紧凑布局，适配手机纵向空间有限的现实。
+/// 日记 / 焦点输入卡片：浮在渐变背景上的玻璃面板
+/// editorHeight 由父视图按真实屏幕可用空间算出，保证任何机型都不溢出
 struct JournalCard: View {
     @Binding var note: String
     @Binding var focus: String
+    var editorHeight: CGFloat = 96
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             Text("此刻心情")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.white)
 
             TextEditor(text: $note)
-                .frame(minHeight: 56, maxHeight: 96) // 比之前 68→140 更紧凑
+                .frame(height: editorHeight)
                 .scrollContentBackground(.hidden)
                 .foregroundStyle(.white)
 
@@ -29,7 +30,7 @@ struct JournalCard: View {
                 .foregroundStyle(.white)
                 .font(.subheadline)
         }
-        .padding(14) // 从 16 → 14
+        .padding(14)
         .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 22))
     }
 }

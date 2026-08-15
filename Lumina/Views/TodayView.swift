@@ -15,9 +15,29 @@ struct TodayView: View {
     @Namespace private var ns
 
     var body: some View {
-        NavigationStack {
+        // 用真实屏幕尺寸按比例分配各区块 —— 不再写死 padding
+        GeometryReader { geo in
+            let h = geo.size.height
+            let safeTop = geo.safeAreaInsets.top
+            let safeBottom = geo.safeAreaInsets.bottom
+            // iOS 26 Liquid Glass TabBar 浮条 ~70pt + safe bottom；至少留 90pt
+            let tabBarSpace: CGFloat = max(90, safeBottom + 70)
+
+            // 固定段高度合计：caption + spacing + title + spacing + orbs + spacing + actions
+            let captionH: CGFloat = 20
+            let titleH: CGFloat = 30
+            let orbsH: CGFloat = 74
+            let actionsH: CGFloat = 48
+            let gaps: CGFloat = 8 + 10 + 12 + 12 // caption→title→orbs→actions
+            let fixedTotal: CGFloat = captionH + titleH + orbsH + actionsH + gaps + tabBarSpace + 8
+
+            // JournalCard 内部固定段：title + divider + focus label + focus field + padding
+            let cardInner: CGFloat = 18 + 6 + 1 + 6 + 16 + 6 + 28 + 14 * 2 // ≈ 111
+            // 弹性：TextEditor 高度 = 剩余空间，封顶 160、最低 80
+            let editorH: CGFloat = min(160, max(80, h - fixedTotal - cardInner))
+            let cardH: CGFloat = editorH + cardInner
+
             ZStack(alignment: .top) {
-                // 动态渐变背景——玻璃面板会实时折射它
                 LinearGradient(
                     colors: selectedMood.gradient,
                     startPoint: .topLeading,
@@ -27,20 +47,35 @@ struct TodayView: View {
                 .animation(.easeInOut(duration: 0.8), value: selectedMood)
 
                 ScrollView {
-                    VStack(spacing: 16) {
-                        // 主标题——只一行，nav bar 上 inline 再放一个 "Lumina" 小字
+                    VStack(spacing: 0) {
+                        Text("Lumina")
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.white.opacity(0.7))
+                            .frame(height: captionH)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.leading, 20)
+                            .padding(.top, safeTop > 0 ? 0 : 4)
+
                         Text("今日流光")
-                            .font(.title2.bold()) // 标题字重对，但字阶 title2 ≈ 22pt，更紧凑
+                            .font(.title2.bold())
                             .foregroundStyle(.white)
-                            .padding(.top, 4)
+                            .frame(height: titleH)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.leading, 20)
+                            .padding(.top, 8)
 
                         MoodOrbsView(selected: $selectedMood) { _ in
                             haptic()
                         }
+                        .frame(height: orbsH)
+                        .padding(.top, 12)
+                        .padding(.horizontal, 16)
 
-                        JournalCard(note: $noteText, focus: $focusText)
+                        JournalCard(note: $noteText, focus: $focusText, editorHeight: editorH)
+                            .frame(height: cardH)
+                            .padding(.top, 12)
+                            .padding(.horizontal, 16)
 
-                        // 可形变的玻璃操作区：保存 / 分享 / 展开
                         GlassEffectContainer(spacing: 12) {
                             HStack(spacing: 10) {
                                 Button {
@@ -84,25 +119,19 @@ struct TodayView: View {
                                 .glassEffect(.regular.interactive(), in: Circle())
                                 .glassEffectID("toggle", in: ns)
                             }
-                            .padding(.horizontal)
+                            .frame(height: actionsH)
+                            .padding(.horizontal, 16)
                         }
+                        .padding(.top, 12)
 
-                        Spacer(minLength: 8)
+                        Spacer(minLength: tabBarSpace)
                     }
                     .frame(maxWidth: 540)
-                    .frame(maxWidth: .infinity) // 让 maxWidth:540 在 iPad 也居中不影响
-                    .padding(.horizontal)
-                    // 用 safeAreaInset 让底部 padding 跟随真实 tab bar 高度，不会把内容顶得靠上
-                    .padding(.bottom, 24)
+                    .frame(maxWidth: .infinity)
                 }
                 .scrollDismissesKeyboard(.interactively)
-                // 让 ScrollView 把 nav bar 算进 inset，避免内容被标题盖住
-                .contentMargins(.top, 0, for: .scrollContent)
             }
-            .navigationTitle("Lumina")
-            .navigationBarTitleDisplayMode(.inline)
-            // 让 TabBar 透明浮条自己走 safe area，但 ScrollView 内容不会被它遮
-            .toolbarBackground(.hidden, for: .navigationBar)
+            // 不用 NavigationStack —— 没有 nav bar 就不会出顶部黑条
         }
         .sheet(isPresented: $showShareSheet) {
             ShareSheet(items: [shareText])
