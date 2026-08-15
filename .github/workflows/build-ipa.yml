@@ -3,10 +3,9 @@ name: Build IPA (no Mac needed)
 on:
   push:
     branches: [main, master]
+    # 推送 tag（如 v1.0.0）会自动发布到 Release
+    tags: ["v*"]
   workflow_dispatch:
-  # 推送 tag（如 v1.0.0）会自动发布到 Release
-  tags:
-    - "v*"
 
 jobs:
   build:
