@@ -1,0 +1,83 @@
+name: Build IPA (no Mac needed)
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+  # 推送 tag（如 v1.0.0）会自动发布到 Release
+  tags:
+    - "v*"
+
+jobs:
+  build:
+    # 需要装有 Xcode 26 的 macOS runner（iOS 26 工具链）。
+    # 若默认 macos-latest 自带的 Xcode 版本过低，把下面的 runs-on 改成 macos-26，
+    # 或在「Select Xcode」步骤里手动指定 Xcode_26.app 路径。
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode (newest available)
+        run: |
+          echo "== Available Xcodes =="
+          ls /Applications | grep -i xcode || true
+          XCODE=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -n1)
+          if [ -z "$XCODE" ]; then
+            echo "::error::未找到 Xcode，请更换 runner 镜像"
+            exit 1
+          fi
+          echo "Using: $XCODE"
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build & Archive (unsigned)
+        run: |
+          set -e
+          xcodebuild archive \
+            -scheme Lumina \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$PWD/build/Lumina.xcarchive" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            DEVELOPMENT_TEAM="" \
+            IPHONEOS_DEPLOYMENT_TARGET=26.0 \
+            | tee build.log
+
+      - name: Package unsigned IPA
+        run: |
+          set -e
+          APP=$(find "$PWD/build/Lumina.xcarchive/Products/Applications" -name "Lumina.app" -maxdepth 1 -type d | head -n1)
+          if [ -z "$APP" ]; then
+            echo "::error::未找到 Lumina.app，archive 可能失败"
+            exit 1
+          fi
+          mkdir -p "$PWD/build/Payload"
+          cp -R "$APP" "$PWD/build/Payload/"
+          cd "$PWD/build" && zip -r Lumina.ipa Payload
+          echo "== IPA 大小 =="
+          ls -lh "$PWD/build/Lumina.ipa"
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lumina-unsigned-ipa
+          path: build/Lumina.ipa
+          if-no-files-found: error
+
+      - name: Release (on tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/Lumina.ipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
